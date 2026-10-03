@@ -1,24 +1,26 @@
-# IntelliJ
-.idea/
-*.iml
+# VendorSphere AI
 
-# VS Code
-.vscode/
+AI-Powered Vendor Risk & Compliance Management Platform
 
-# Node
-node_modules/
+Tech Stack:
 
-# Build
-target/
-dist/
+## Frontend
+- Angular
+- TypeScript
+- Angular Material
 
-# Logs
-logs/
-*.log
+## Backend
+- Java 21
+- Spring Boot 3
 
-# Environment
-.env
+## Database
+- PostgreSQL
 
-# OS
-.DS_Store
-Thumbs.db
+## Cache
+- Redis
+
+## Messaging
+- Kafka
+
+## AI
+- Gemini API

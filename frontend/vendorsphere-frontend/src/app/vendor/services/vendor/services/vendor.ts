@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Vendor, VendorRequest } from '../../../models/vendor.model';
+import { environment } from '../../../../../environments/environment';
+import { RiskLevel, Vendor, VendorRequest } from '../../../models/vendor.model';
 
 export interface VendorPage {
   content: Vendor[];
@@ -13,17 +14,34 @@ export interface VendorPage {
   last: boolean;
 }
 
+export interface VendorQuery {
+  search: string;
+  riskLevel: RiskLevel | null;
+  page: number;
+  size: number;
+  sortBy: string;
+  direction: 'ASC' | 'DESC';
+}
+
 @Injectable({ providedIn: 'root' })
 export class VendorService {
-  private readonly apiUrl = 'http://localhost:8080/api/vendors';
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/vendors`;
 
   constructor(private readonly http: HttpClient) {}
 
-  getVendors(page = 0, size = 5, sortBy = 'vendorName'): Observable<VendorPage> {
-    const params = new HttpParams()
-      .set('page', page)
-      .set('size', size)
-      .set('sortBy', sortBy);
+  getVendors(query: VendorQuery): Observable<VendorPage> {
+    let params = new HttpParams()
+      .set('page', query.page)
+      .set('size', query.size)
+      .set('sortBy', query.sortBy)
+      .set('direction', query.direction);
+
+    if (query.search.trim()) {
+      params = params.set('search', query.search.trim());
+    }
+    if (query.riskLevel) {
+      params = params.set('riskLevel', query.riskLevel);
+    }
 
     return this.http.get<VendorPage>(this.apiUrl, { params });
   }
@@ -42,10 +60,5 @@ export class VendorService {
 
   deleteVendor(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  searchVendors(vendorName: string): Observable<Vendor[]> {
-    const params = new HttpParams().set('vendorName', vendorName);
-    return this.http.get<Vendor[]>(`${this.apiUrl}/search`, { params });
   }
 }

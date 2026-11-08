@@ -1,0 +1,27 @@
+.vendor-details {
+  display: grid;
+  gap: 12px 24px;
+  grid-template-columns: 120px minmax(180px, 1fr);
+  margin: 8px 0;
+}
+
+.vendor-details dt {
+  color: #5d6472;
+  font-weight: 600;
+}
+
+.vendor-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.risk {
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+}
+
+.risk--low { background: #e6f4ea; color: #176b36; }
+.risk--medium { background: #fff4d6; color: #805b00; }
+.risk--high, .risk--critical { background: #fde8e7; color: #a12a25; }

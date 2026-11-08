@@ -1,0 +1,42 @@
+.app-toolbar {
+  background: #fff;
+  border-bottom: 1px solid #e5e8ef;
+  color: #20283a;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  align-items: center;
+  color: inherit;
+  display: inline-flex;
+  font-size: 16px;
+  font-weight: 750;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.brand small {
+  color: #5367c5;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  margin-left: 3px;
+  text-transform: uppercase;
+}
+
+.brand-mark {
+  align-items: center;
+  background: #5367c5;
+  border-radius: 10px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 17px;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}

@@ -1,0 +1,167 @@
+.page-shell {
+  margin: 0 auto;
+  max-width: 1440px;
+  padding: 36px clamp(16px, 4vw, 56px) 48px;
+}
+
+.page-heading {
+  align-items: center;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.page-heading h1 {
+  color: #20283a;
+  font-size: clamp(28px, 3vw, 36px);
+  letter-spacing: -0.04em;
+  margin: 4px 0 8px;
+}
+
+.eyebrow {
+  color: #5367c5;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  margin: 0;
+}
+
+.subtitle {
+  color: #687184;
+  margin: 0;
+}
+
+.page-heading button {
+  min-height: 44px;
+}
+
+.vendor-card {
+  border: 1px solid #e3e7ef;
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgb(32 40 58 / 5%);
+}
+
+.vendor-card mat-card-content {
+  padding: 20px 24px 12px;
+}
+
+.filters {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.search-field {
+  flex: 1 1 320px;
+}
+
+.risk-filter {
+  flex: 0 1 220px;
+}
+
+.table-wrap {
+  min-height: 280px;
+  overflow-x: auto;
+  position: relative;
+}
+
+table {
+  min-width: 760px;
+  width: 100%;
+}
+
+th.mat-mdc-header-cell {
+  color: #647087;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+td.mat-mdc-cell,
+th.mat-mdc-header-cell {
+  border-bottom-color: #edf0f5;
+  padding: 14px 12px;
+}
+
+.vendor-code {
+  color: #5367c5;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.vendor-name {
+  color: #20283a;
+  font-weight: 650;
+}
+
+.vendor-email {
+  color: #7a8292;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.risk-badge {
+  border-radius: 999px;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 5px 10px;
+}
+
+.risk--low { background: #e6f4ea; color: #176b36; }
+.risk--medium { background: #fff4d6; color: #805b00; }
+.risk--high { background: #feeadb; color: #994a06; }
+.risk--critical { background: #fde8e7; color: #a12a25; }
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.empty-cell {
+  color: #687184;
+  height: 150px;
+  text-align: center;
+}
+
+.loading-state {
+  align-items: center;
+  background: rgb(255 255 255 / 72%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: absolute;
+  z-index: 2;
+}
+
+.visually-hidden {
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+@media (max-width: 700px) {
+  .page-heading {
+    align-items: flex-start;
+  }
+
+  .page-heading button {
+    flex-shrink: 0;
+  }
+
+  .vendor-card mat-card-content {
+    padding: 14px 12px 8px;
+  }
+
+  .risk-filter {
+    flex: 1 1 180px;
+  }
+}

@@ -1,1 +1,99 @@
-<p>vendor-list works!</p>
+<main class="page-shell">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">VENDOR MANAGEMENT</p>
+      <h1>Vendors</h1>
+      <p class="subtitle">Manage vendor profiles and monitor their current risk level.</p>
+    </div>
+    <button mat-flat-button color="primary" type="button" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Add vendor
+    </button>
+  </header>
+
+  <mat-card class="vendor-card">
+    <mat-card-content>
+      <div class="filters">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search vendors</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput [formControl]="searchControl" placeholder="Name, code, email or industry">
+          <button mat-icon-button matSuffix type="button" aria-label="Clear search"
+                  *ngIf="searchControl.value" (click)="searchControl.setValue('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="risk-filter">
+          <mat-label>Risk level</mat-label>
+          <mat-select [formControl]="riskControl">
+            <mat-option [value]="null">All risk levels</mat-option>
+            <mat-option *ngFor="let level of riskLevels" [value]="level">{{ level }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-button type="button" (click)="clearFilters()">Clear filters</button>
+      </div>
+
+      <div class="table-wrap" [attr.aria-busy]="loading">
+        <div class="loading-state" *ngIf="loading" aria-label="Loading vendors">
+          <mat-spinner diameter="36"></mat-spinner>
+        </div>
+
+        <table mat-table [dataSource]="vendors" matSort
+               [matSortActive]="sortBy" [matSortDirection]="materialSortDirection"
+               (matSortChange)="onSort($event)">
+          <ng-container matColumnDef="vendorCode">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="vendorCode">Vendor code</th>
+            <td mat-cell *matCellDef="let vendor"><span class="vendor-code">{{ vendor.vendorCode }}</span></td>
+          </ng-container>
+
+          <ng-container matColumnDef="vendorName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="vendorName">Vendor</th>
+            <td mat-cell *matCellDef="let vendor">
+              <div class="vendor-name">{{ vendor.vendorName }}</div>
+              <div class="vendor-email">{{ vendor.email }}</div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="industry">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="industry">Industry</th>
+            <td mat-cell *matCellDef="let vendor">{{ vendor.industry }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="riskLevel">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="riskLevel">Risk level</th>
+            <td mat-cell *matCellDef="let vendor">
+              <span class="risk-badge" [ngClass]="riskClass(vendor.riskLevel)">{{ vendor.riskLevel }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef><span class="visually-hidden">Actions</span></th>
+            <td mat-cell *matCellDef="let vendor" class="actions-cell">
+              <button mat-icon-button type="button" aria-label="View vendor" matTooltip="View"
+                      (click)="openDetails(vendor)"><mat-icon>visibility</mat-icon></button>
+              <button mat-icon-button type="button" aria-label="Edit vendor" matTooltip="Edit"
+                      (click)="openEditDialog(vendor)"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button type="button" aria-label="Deactivate vendor" matTooltip="Deactivate"
+                      (click)="confirmDelete(vendor)"><mat-icon>delete_outline</mat-icon></button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr class="mat-row" *matNoDataRow>
+            <td class="empty-cell" [attr.colspan]="displayedColumns.length">
+              {{ loading ? 'Loading vendors…' : 'No vendors match these filters.' }}
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <mat-paginator [length]="totalElements" [pageIndex]="pageIndex" [pageSize]="pageSize"
+                     [pageSizeOptions]="[5, 10, 25, 50]" (page)="onPage($event)"
+                     showFirstLastButtons aria-label="Vendor pages">
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</main>

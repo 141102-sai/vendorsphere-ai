@@ -1,0 +1,42 @@
+<h2 mat-dialog-title>{{ isEditing ? 'Edit vendor' : 'Add vendor' }}</h2>
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="form-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>Vendor name</mat-label>
+      <input matInput formControlName="vendorName" maxlength="120" autocomplete="organization">
+      <mat-error *ngIf="form.controls.vendorName.invalid">Enter a vendor name (up to 120 characters).</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Business email</mat-label>
+      <input matInput type="email" formControlName="email" maxlength="254" autocomplete="email">
+      <mat-error *ngIf="form.controls.email.invalid">Enter a valid email address.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Phone number</mat-label>
+      <input matInput type="tel" formControlName="phoneNumber" autocomplete="tel">
+      <mat-hint>Include country code where appropriate</mat-hint>
+      <mat-error *ngIf="form.controls.phoneNumber.invalid">Enter a valid phone number.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Industry</mat-label>
+      <input matInput formControlName="industry" maxlength="100">
+      <mat-error *ngIf="form.controls.industry.invalid">Industry is required.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Address</mat-label>
+      <textarea matInput formControlName="address" rows="3" maxlength="300"></textarea>
+      <mat-error *ngIf="form.controls.address.invalid">Address is required.</mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancel()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit">
+      {{ isEditing ? 'Save changes' : 'Create vendor' }}
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>{{ vendor.vendorName }}</h2>
+<mat-dialog-content>
+  <dl class="vendor-details">
+    <dt>Vendor code</dt><dd>{{ vendor.vendorCode }}</dd>
+    <dt>Risk level</dt><dd><span class="risk" [class]="'risk risk--' + vendor.riskLevel.toLowerCase()">{{ vendor.riskLevel }}</span></dd>
+    <dt>Email</dt><dd><a [href]="'mailto:' + vendor.email">{{ vendor.email }}</a></dd>
+    <dt>Phone</dt><dd><a [href]="'tel:' + vendor.phoneNumber">{{ vendor.phoneNumber }}</a></dd>
+    <dt>Industry</dt><dd>{{ vendor.industry }}</dd>
+    <dt>Address</dt><dd>{{ vendor.address }}</dd>
+  </dl>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

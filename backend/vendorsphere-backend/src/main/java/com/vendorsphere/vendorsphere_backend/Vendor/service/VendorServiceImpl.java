@@ -8,124 +8,111 @@ import com.vendorsphere.vendorsphere_backend.Vendor.exception.VendorAlreadyExist
 import com.vendorsphere.vendorsphere_backend.Vendor.exception.VendorNotFoundException;
 import com.vendorsphere.vendorsphere_backend.Vendor.mapper.VendorMapper;
 import com.vendorsphere.vendorsphere_backend.Vendor.repository.VendorRepository;
+import com.vendorsphere.vendorsphere_backend.Vendor.repository.VendorSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class VendorServiceImpl implements VendorService {
+
+    private static final int MAX_PAGE_SIZE = 100;
+    private static final Set<String> SORTABLE_FIELDS = Set.of(
+            "vendorName", "vendorCode", "email", "industry", "riskLevel");
+
     private final VendorRepository vendorRepository;
     private final VendorMapper vendorMapper;
 
     @Override
-    public VendorResponseDto createVendor(
-            VendorRequestDto request
-    ) {
-
-        if (vendorRepository
-                .findByEmail(request.getEmail())
-                .isPresent()) {
-
-            throw new VendorAlreadyExistsException(
-                    "Vendor already exists with email : "
-                            + request.getEmail()
-            );
+    public VendorResponseDto createVendor(VendorRequestDto request) {
+        String normalizedEmail = request.getEmail().trim();
+        if (vendorRepository.findByEmailIgnoreCase(normalizedEmail).isPresent()) {
+            throw new VendorAlreadyExistsException("A vendor already exists with this email address");
         }
 
         Vendor vendor = vendorMapper.toEntity(request);
-
         vendor.setVendorCode(generateVendorCode());
-
         vendor.setRiskLevel(RiskLevel.LOW);
         vendor.setActive(true);
-        Vendor savedVendor = vendorRepository.save(vendor);
-        return vendorMapper.toResponseDto(savedVendor);
+
+        return vendorMapper.toResponseDto(vendorRepository.save(vendor));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public VendorResponseDto getVendorById(Long id) {
-        Vendor vendor =
-                vendorRepository.findById(id)
-                        .orElseThrow(() -> new VendorNotFoundException("Vendor not found with id : " + id)
-                        );
-
+        Vendor vendor = vendorRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new VendorNotFoundException("Active vendor not found with id: " + id));
         return vendorMapper.toResponseDto(vendor);
     }
 
     @Override
-    public List<VendorResponseDto>
-    getAllVendors() {
-        return vendorRepository.findByActiveTrue()
-                .stream()
-                .map(vendorMapper::toResponseDto)
-                .toList();
-    }
+    @Transactional(readOnly = true)
+    public Page<VendorResponseDto> searchVendors(
+            String search,
+            RiskLevel riskLevel,
+            int page,
+            int size,
+            String sortBy,
+            Sort.Direction direction) {
 
-    private String generateVendorCode() {
-        return "VENDOR-"
-                + System.currentTimeMillis();
+        if (page < 0) {
+            throw new IllegalArgumentException("Page index cannot be negative");
+        }
+        if (size < 1 || size > MAX_PAGE_SIZE) {
+            throw new IllegalArgumentException("Page size must be between 1 and " + MAX_PAGE_SIZE);
+        }
+        if (!SORTABLE_FIELDS.contains(sortBy)) {
+            throw new IllegalArgumentException("Unsupported sort field: " + sortBy);
+        }
+
+        Specification<Vendor> specification = VendorSpecifications.activeVendors();
+        if (search != null && !search.isBlank()) {
+            specification = specification.and(VendorSpecifications.matchesSearch(search));
+        }
+        if (riskLevel != null) {
+            specification = specification.and(VendorSpecifications.hasRiskLevel(riskLevel));
+        }
+
+        Sort sort = Sort.by(direction, sortBy).and(Sort.by(Sort.Direction.ASC, "id"));
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return vendorRepository.findAll(specification, pageable).map(vendorMapper::toResponseDto);
     }
 
     @Override
     public VendorResponseDto updateVendor(Long id, VendorRequestDto request) {
-        Vendor vendor = vendorRepository.findById(id)
-                        .orElseThrow(() -> new VendorNotFoundException("Vendor not found with id : " + id)
-                        );
-        vendor.setVendorName(request.getVendorName());
-        vendor.setEmail(request.getEmail());
-        vendor.setPhoneNumber(request.getPhoneNumber());
-        vendor.setAddress(request.getAddress());
-        vendor.setIndustry(request.getIndustry());
-        Vendor updatedVendor = vendorRepository.save(vendor);
-        return vendorMapper
-                .toResponseDto(updatedVendor);
+        Vendor vendor = vendorRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new VendorNotFoundException("Active vendor not found with id: " + id));
+
+        String normalizedEmail = request.getEmail().trim();
+        if (vendorRepository.existsByEmailIgnoreCaseAndIdNot(normalizedEmail, id)) {
+            throw new VendorAlreadyExistsException("A vendor already exists with this email address");
+        }
+
+        vendorMapper.updateFromRequest(request, vendor);
+        return vendorMapper.toResponseDto(vendorRepository.save(vendor));
     }
 
+    @Override
     public void deleteVendor(Long id) {
-        Vendor vendor = vendorRepository.findById(id)
-                        .orElseThrow(() -> new VendorNotFoundException("Vendor not found"));
+        Vendor vendor = vendorRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new VendorNotFoundException("Active vendor not found with id: " + id));
         vendor.setActive(false);
         vendorRepository.save(vendor);
     }
 
-    @Override
-    public Page<VendorResponseDto> getAllVendors(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Vendor> vendorPage = vendorRepository.findAll(pageable);
-        return vendorPage
-                .map(vendorMapper::toResponseDto);
+    private String generateVendorCode() {
+        return "VENDOR-" + UUID.randomUUID().toString().replace("-", "").toUpperCase(Locale.ROOT);
     }
-
-    @Override
-    public Page<VendorResponseDto> getAllVendors(int page, int size, String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
-        Page<Vendor> vendorPage = vendorRepository.findAll(pageable);
-        return vendorPage
-                .map(vendorMapper::toResponseDto);
-    }
-
-    @Override
-    public List<VendorResponseDto> searchVendor(String vendorName) {
-        return vendorRepository
-                .findByVendorNameContainingIgnoreCase(vendorName)
-                .stream()
-                .map(vendorMapper::toResponseDto)
-                .toList();
-    }
-
-    @Override
-    public List<VendorResponseDto> filterByRiskLevel(RiskLevel riskLevel) {
-        return vendorRepository
-                .findByRiskLevel(riskLevel)
-                .stream()
-                .map(vendorMapper::toResponseDto)
-                .toList();
-    }
-
 }

@@ -1,4 +1,6 @@
-export interface vendor{
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface Vendor {
   id: number;
   vendorCode: string;
   vendorName: string;
@@ -6,6 +8,14 @@ export interface vendor{
   phoneNumber: string;
   address: string;
   industry: string;
-  riskLevel: string;
+  riskLevel: RiskLevel;
   active: boolean;
+}
+
+export interface VendorRequest {
+  vendorName: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  industry: string;
 }

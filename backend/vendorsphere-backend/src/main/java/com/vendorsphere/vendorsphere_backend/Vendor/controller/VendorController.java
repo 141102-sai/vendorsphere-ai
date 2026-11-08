@@ -30,8 +30,11 @@ public class VendorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<VendorResponseDto>> getAllVendors() {
-        return ResponseEntity.ok(vendorService.getAllVendors());
+    public ResponseEntity<Page<VendorResponseDto>> getAllVendors(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "vendorName") String sortBy) {
+        return ResponseEntity.ok(vendorService.getAllVendors(page, size, sortBy));
     }
 
     @PutMapping("/{id}")
@@ -49,20 +52,4 @@ public class VendorController {
     public ResponseEntity<List<VendorResponseDto>> searchVendor(@RequestParam String vendorName) {
         return ResponseEntity.ok(vendorService.searchVendor(vendorName));
     }
-
-    @GetMapping
-    public ResponseEntity<Page<VendorResponseDto>> getAllVendors(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
-        return ResponseEntity.ok(
-                vendorService.getAllVendors(page, size)
-        );
-    }
-
-    @GetMapping
-    public ResponseEntity<Page<VendorResponseDto>> getAllVendors(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size, @RequestParam(defaultValue = "vendorName") String sortBy) {
-        return ResponseEntity.ok(
-                vendorService.getAllVendors(page, size, sortBy)
-        );
-    }
-
-
 }

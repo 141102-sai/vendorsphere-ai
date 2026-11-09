@@ -2,7 +2,7 @@ package com.vendorsphere.vendorsphere_backend.Auth.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class JWTService {
@@ -21,16 +22,18 @@ public class JWTService {
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(
-                secret.getBytes()
+                Decoders.BASE64.decode(secret)
         );
     }
 
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
+                .claim("roles", userDetails.getAuthorities().stream()
+                        .map(authority -> authority.getAuthority()).toList())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
     }
 
@@ -71,13 +74,11 @@ public class JWTService {
             UserDetails userDetails
     ) {
 
-        String username =
-                extractUsername(token);
-
-        return username.equals(
-                userDetails.getUsername()
-        )
-                &&
-                !isTokenExpired(token);
+        try {
+            String username = extractUsername(token);
+            return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException ex) {
+            return false;
+        }
     }
 }

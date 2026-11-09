@@ -5,6 +5,7 @@ import com.vendorsphere.vendorsphere_backend.Vendor.exception.VendorAlreadyExist
 import com.vendorsphere.vendorsphere_backend.Vendor.exception.VendorNotFoundException;
 import com.vendorsphere.vendorsphere_backend.common.dto.ErrorResponseDto;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -19,6 +20,11 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponseDto> handleAuthenticationFailure(AuthenticationException ex) {
+        return error(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDto> handleValidationException(MethodArgumentNotValidException ex) {

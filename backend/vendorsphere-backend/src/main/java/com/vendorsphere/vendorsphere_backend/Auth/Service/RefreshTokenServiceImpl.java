@@ -3,7 +3,6 @@ package com.vendorsphere.vendorsphere_backend.Auth.Service;
 import com.vendorsphere.vendorsphere_backend.Auth.entity.RefreshToken;
 import com.vendorsphere.vendorsphere_backend.Auth.entity.User;
 import com.vendorsphere.vendorsphere_backend.Auth.repository.RefreshTokenRepository;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-@Builder
 @RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 

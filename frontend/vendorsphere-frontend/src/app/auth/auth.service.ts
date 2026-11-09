@@ -20,6 +20,11 @@ export interface LoginResponse {
   token: string;
 }
 
+interface TokenClaims {
+  exp?: number;
+  roles?: string[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly apiUrl = `${environment.apiBaseUrl}/api/v1/users`;
@@ -53,7 +58,27 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return this.getToken() !== null;
+    const token = this.getToken();
+    if (!token) return false;
+    const claims = this.readClaims(token);
+    return !!claims && typeof claims.exp === 'number' && claims.exp * 1000 > Date.now();
+  }
+
+  hasAnyRole(...roles: string[]): boolean {
+    const token = this.getToken();
+    const tokenRoles = token ? this.readClaims(token)?.roles ?? [] : [];
+    return this.isAuthenticated() && roles.some((role) => tokenRoles.includes(role));
+  }
+
+  private readClaims(token: string): TokenClaims | null {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return null;
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(window.atob(base64)) as TokenClaims;
+    } catch {
+      return null;
+    }
   }
 
   private saveToken(token: string): void {

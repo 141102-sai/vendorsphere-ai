@@ -13,6 +13,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -37,8 +39,22 @@ public class SecurityConfig {
                                 "/api/v1/users/create",
                                 "/api/v1/users/login")
                         .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/getAll")
+                        .hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/vendors", "/api/vendors/**")
+                        .hasAnyAuthority("ADMIN", "AUDITOR", "RISK_MANAGER", "VENDOR_USER")
+                        .requestMatchers(HttpMethod.POST, "/api/vendors", "/api/vendors/**")
+                        .hasAnyAuthority("ADMIN", "RISK_MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/api/vendors/**")
+                        .hasAnyAuthority("ADMIN", "RISK_MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/vendors/**")
+                        .hasAuthority("ADMIN")
                         .anyRequest()
                         .authenticated())
+                .exceptionHandling(errors -> errors
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                        .accessDeniedHandler((request, response, exception) ->
+                                response.sendError(HttpStatus.FORBIDDEN.value())))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

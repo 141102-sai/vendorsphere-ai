@@ -11,6 +11,7 @@ import { RiskLevel, Vendor, VendorRequest } from '../../../../../models/vendor.m
 import { VendorService } from '../../../../../services/vendor/services/vendor';
 import { VendorDetailDialog } from '../../../../../components/vendor-detail-dialog/vendor-detail-dialog';
 import { VendorFormDialog } from '../../../../../components/vendor-form-dialog/vendor-form-dialog';
+import { AuthService } from '../../../../../../auth/auth.service';
 
 @Component({
   selector: 'app-vendor-list',
@@ -40,6 +41,7 @@ export class VendorList implements OnInit, OnDestroy {
   }
 
   constructor(
+    readonly authService: AuthService,
     private readonly vendorService: VendorService,
     private readonly dialog: MatDialog,
     private readonly snackBar: MatSnackBar,

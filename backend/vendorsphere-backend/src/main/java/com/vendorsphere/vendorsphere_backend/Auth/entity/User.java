@@ -22,6 +22,7 @@ public class User extends BaseEntity{
     private Long id;
     private String firstName;
     private String lastName;
+    @Column(nullable = false, unique = true)
     private String email;
     private String password;
     private Boolean active;
@@ -31,6 +32,7 @@ public class User extends BaseEntity{
             joinColumns = @JoinColumn(name="user_id"),
             inverseJoinColumns = @JoinColumn(name="role_id")
     )
+    @Builder.Default
     private Set<Role>roles=new HashSet<>();
     @OneToMany(
             mappedBy = "user",
